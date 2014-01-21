@@ -23,6 +23,7 @@ Examples:
     $ gocyclo main.go
     $ gocyclo -top 10 src/
     $ gocyclo -over 25 docker
+    $ gocyclo -avg .
 
 The output fields for each line are:
 
