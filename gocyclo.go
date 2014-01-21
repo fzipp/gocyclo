@@ -40,7 +40,7 @@ Flags
                   return exit code 1 if the set is non-empty
         -top N    show the top N most complex functions only
         -avg      show the average complexity over all functions,
-		          not depending on whether -over or -top are set
+                  not depending on whether -over or -top are set
 
 The output fields for each line are:
 <complexity> <package> <function> <file:row:column>
