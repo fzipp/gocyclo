@@ -28,7 +28,6 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
-	"strings"
 )
 
 const usageDoc = `Calculate cyclomatic complexities of Go functions.
@@ -105,12 +104,10 @@ func analyzeFile(fname string, stats []stat) []stat {
 }
 
 func analyzeDir(dirname string, stats []stat) []stat {
-	filepath.Walk(dirname, func(path string, info os.FileInfo, err error) error {
-		if err == nil && !info.IsDir() && strings.HasSuffix(path, ".go") {
-			stats = analyzeFile(path, stats)
-		}
-		return err
-	})
+	files, _ := filepath.Glob(filepath.Join(dirname, "*.go"))
+	for _, file := range files {
+		stats = analyzeFile(file, stats)
+	}
 	return stats
 }
 
