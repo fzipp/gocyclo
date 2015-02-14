@@ -8,7 +8,7 @@
 // Usage:
 //      gocyclo [<flag> ...] <Go file or directory> ...
 //
-// Flags
+// Flags:
 //      -over N   show functions with complexity > N only and
 //                return exit code 1 if the output is non-empty
 //      -top N    show the top N most complex functions only
@@ -25,6 +25,7 @@ import (
 	"go/parser"
 	"go/token"
 	"io"
+	"log"
 	"os"
 	"path/filepath"
 	"sort"
@@ -32,10 +33,10 @@ import (
 )
 
 const usageDoc = `Calculate cyclomatic complexities of Go functions.
-usage:
-        gocyclo [<flag> ...] <Go file or directory> ...
+Usage:
+        gocyclo [flags] <Go file or directory> ...
 
-Flags
+Flags:
         -over N   show functions with complexity > N only and
                   return exit code 1 if the set is non-empty
         -top N    show the top N most complex functions only
@@ -58,6 +59,8 @@ var (
 )
 
 func main() {
+	log.SetFlags(0)
+	log.SetPrefix("gocyclo: ")
 	flag.Usage = usage
 	flag.Parse()
 	args := flag.Args()
@@ -79,7 +82,7 @@ func main() {
 }
 
 func analyze(paths []string) []stat {
-	stats := make([]stat, 0)
+	var stats []stat
 	for _, path := range paths {
 		if isDir(path) {
 			stats = analyzeDir(path, stats)
@@ -99,7 +102,7 @@ func analyzeFile(fname string, stats []stat) []stat {
 	fset := token.NewFileSet()
 	f, err := parser.ParseFile(fset, fname, nil, 0)
 	if err != nil {
-		exitError(err)
+		log.Fatal(err)
 	}
 	return buildStats(f, fset, stats)
 }
@@ -112,11 +115,6 @@ func analyzeDir(dirname string, stats []stat) []stat {
 		return err
 	})
 	return stats
-}
-
-func exitError(err error) {
-	fmt.Fprintln(os.Stderr, err)
-	os.Exit(1)
 }
 
 func writeStats(w io.Writer, sortedStats []stat) int {
