@@ -111,7 +111,7 @@ func analyzeFile(fname string, stats []stat) []stat {
 
 func analyzeDir(dirname string, stats []stat) []stat {
 	filepath.Walk(dirname, func(path string, info os.FileInfo, err error) error {
-		if err == nil && !info.IsDir() && isAnalyzeTarget(path) {
+		if err == nil && !info.IsDir() && isAnalyzeTarget(dirname, path) {
 			stats = analyzeFile(path, stats)
 		}
 		return err
@@ -119,8 +119,9 @@ func analyzeDir(dirname string, stats []stat) []stat {
 	return stats
 }
 
-func isAnalyzeTarget(path string) bool {
-	if strings.HasPrefix(path, "Godeps") && *skipGodeps {
+func isAnalyzeTarget(dirname, path string) bool {
+	prefix := strings.Join([]string{dirname, "Godeps"}, string(os.PathSeparator))
+	if strings.HasPrefix(path, prefix) && *skipGodeps {
 		return false
 	}
 	return strings.HasSuffix(path, ".go")
