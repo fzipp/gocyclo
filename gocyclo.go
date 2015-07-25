@@ -121,6 +121,9 @@ func analyzeDir(dirname string, stats []stat) []stat {
 
 func isAnalyzeTarget(dirname, path string) bool {
 	prefix := strings.Join([]string{dirname, "Godeps"}, string(os.PathSeparator))
+	if dirname == "." {
+		prefix = "Godeps"
+	}
 	if strings.HasPrefix(path, prefix) && *skipGodeps {
 		return false
 	}
