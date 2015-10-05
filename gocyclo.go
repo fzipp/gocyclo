@@ -109,8 +109,16 @@ func analyzeFile(fname string, stats []stat) []stat {
 
 func analyzeDir(dirname string, stats []stat) []stat {
 	filepath.Walk(dirname, func(path string, info os.FileInfo, err error) error {
-		if err == nil && !info.IsDir() && strings.HasSuffix(path, ".go") {
-			stats = analyzeFile(path, stats)
+		if err == nil {
+			name := info.Name()
+			skip := strings.HasPrefix(name, "_") || (strings.HasPrefix(name, ".") && name != ".")
+			if info.IsDir() {
+				if name == "testdata" || skip {
+					err = filepath.SkipDir
+				}
+			} else if !skip && strings.HasSuffix(path, ".go") {
+				stats = analyzeFile(path, stats)
+			}
 		}
 		return err
 	})
