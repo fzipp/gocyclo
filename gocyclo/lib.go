@@ -41,6 +41,9 @@ func ShowAverage(stats []Stat) {
 }
 
 func Average(stats []Stat) float64 {
+	if len(stats) < 1 {
+		return 0.0
+	}
 	total := 0
 	for _, s := range stats {
 		total += s.Complexity
