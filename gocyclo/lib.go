@@ -9,29 +9,31 @@ import (
 	"go/ast"
 	"go/parser"
 	"go/token"
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
 )
 
-func AnalyzeFile(fname string, stats []Stat) []Stat {
+func AnalyzeFile(fname string, stats []Stat) ([]Stat, error) {
 	fset := token.NewFileSet()
 	f, err := parser.ParseFile(fset, fname, nil, 0)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
-	return buildStats(f, fset, stats)
+	return buildStats(f, fset, stats), nil
 }
 
 func AnalyzeDir(dirname string, stats []Stat) []Stat {
-	filepath.Walk(dirname, func(path string, info os.FileInfo, err error) error {
+	err := filepath.Walk(dirname, func(path string, info os.FileInfo, err error) error {
 		if err == nil && !info.IsDir() && strings.HasSuffix(path, ".go") {
-			stats = AnalyzeFile(path, stats)
+			stats, err = AnalyzeFile(path, stats)
+			if err != nil {
+				return err
+			}
 		}
 		return err
 	})
-	return stats
+	return stats, err
 }
 
 func ShowAverage(stats []Stat) {

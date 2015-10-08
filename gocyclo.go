@@ -65,7 +65,10 @@ func main() {
 		usage()
 	}
 
-	stats := analyze(args)
+	stats, err := analyze(args)
+	if err != nil {
+		log.Fatal(err)
+	}
 	sort.Sort(ByComplexity(stats))
 	written := writeStats(os.Stdout, stats)
 
@@ -91,16 +94,20 @@ func writeStats(w io.Writer, sortedStats []Stat) int {
 	return len(sortedStats)
 }
 
-func analyze(paths []string) []Stat {
-	var stats []Stat
+func analyze(paths []string) (stats []Stat, err error) {
 	for _, path := range paths {
+		var f func(string, []Stat) ([]Stat, error)
 		if isDir(path) {
-			stats = AnalyzeDir(path, stats)
+			f = AnalyzeDir
 		} else {
-			stats = AnalyzeFile(path, stats)
+			f = AnalyzeFile
+		}
+		stats, err = f(path, stats)
+		if err != nil {
+			return nil, err
 		}
 	}
-	return stats
+	return stats, err
 }
 
 func isDir(filename string) bool {
