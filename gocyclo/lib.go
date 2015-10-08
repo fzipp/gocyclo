@@ -23,7 +23,7 @@ func AnalyzeFile(fname string, stats []Stat) ([]Stat, error) {
 	return buildStats(f, fset, stats), nil
 }
 
-func AnalyzeDir(dirname string, stats []Stat) []Stat {
+func AnalyzeDir(dirname string, stats []Stat) ([]Stat, error) {
 	err := filepath.Walk(dirname, func(path string, info os.FileInfo, err error) error {
 		if err == nil && !info.IsDir() && strings.HasSuffix(path, ".go") {
 			stats, err = AnalyzeFile(path, stats)
