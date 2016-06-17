@@ -1,21 +1,14 @@
-Gocyclo calculates cyclomatic complexities of functions in Go source code.
+Command gocyclo calculates cyclomatic complexities of functions in Go source code.
 
-The cyclomatic complexity of a function is calculated according to the
-following rules:
-
-     1 is the base complexity of a function
-    +1 for each 'if', 'for', 'case', '&&' or '||'
+For more information on the metric refer to https://en.wikipedia.org/wiki/Cyclomatic_complexity.
 
 To install, run
 
-    $ go get github.com/fzipp/gocyclo
-
-and put the resulting binary in one of your PATH directories if
-`$GOPATH/bin` isn't already in your PATH.
+    $ go get github.com/nodirt/gocyclo
 
 Usage:
 
-    $ gocyclo [<flag> ...] <Go file or directory> ...
+    $ gocyclo [<flag> ...] <Go file or package> ...
 
 Examples:
 
@@ -27,5 +20,4 @@ Examples:
 
 The output fields for each line are:
 
-    <complexity> <package> <function> <file:row:column>
-
+    <complexity> <full function name> <file:row:column>
