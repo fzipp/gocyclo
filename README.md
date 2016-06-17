@@ -4,7 +4,7 @@ For more information on the metric refer to https://en.wikipedia.org/wiki/Cyclom
 
 To install, run
 
-    $ go get github.com/nodirt/gocyclo
+    $ go get github.com/fzipp/gocyclo
 
 Usage:
 
