@@ -42,7 +42,10 @@ Flags:
         -top N    show the top N most complex functions only
         -avg      show the average complexity over all functions,
                   not depending on whether -over or -top are set
-
+        -pkgAvg   show the average complexity over all functions,
+				  in a package not depending on whether -over or
+				  -top are set
+		-skip-vendor skips the provided folder (defaults to vendor)
 The output fields for each line are:
 <complexity> <package> <function> <file:row:column>
 `
@@ -53,9 +56,11 @@ func usage() {
 }
 
 var (
-	over = flag.Int("over", 0, "show functions with complexity > N only")
-	top  = flag.Int("top", -1, "show the top N most complex functions only")
-	avg  = flag.Bool("avg", false, "show the average complexity")
+	over       = flag.Int("over", 0, "show functions with complexity > N only")
+	top        = flag.Int("top", -1, "show the top N most complex functions only")
+	avg        = flag.Bool("avg", false, "show the average complexity")
+	pkgAvg     = flag.Bool("pkgAvg", false, "show the average complexity by package")
+	skipVendor = flag.String("skip-vendor", "vendor", "skip the vendor folder")
 )
 
 func main() {
@@ -74,6 +79,10 @@ func main() {
 
 	if *avg {
 		showAverage(stats)
+	}
+
+	if *pkgAvg {
+		showStatsByPkg(stats)
 	}
 
 	if *over > 0 && written > 0 {
@@ -109,12 +118,24 @@ func analyzeFile(fname string, stats []stat) []stat {
 
 func analyzeDir(dirname string, stats []stat) []stat {
 	filepath.Walk(dirname, func(path string, info os.FileInfo, err error) error {
-		if err == nil && !info.IsDir() && strings.HasSuffix(path, ".go") {
+		if err == nil && !info.IsDir() && isAnalyzeTarget(dirname, path) {
 			stats = analyzeFile(path, stats)
 		}
 		return err
 	})
 	return stats
+}
+
+func isAnalyzeTarget(dirname, path string) bool {
+	prefix := strings.Join([]string{dirname, *skipVendor}, string(os.PathSeparator))
+	if dirname == "." {
+		prefix = *skipVendor
+	}
+
+	if *skipVendor != "" && strings.HasPrefix(path, prefix) {
+		return false
+	}
+	return strings.HasSuffix(path, ".go")
 }
 
 func writeStats(w io.Writer, sortedStats []stat) int {
@@ -140,6 +161,26 @@ func average(stats []stat) float64 {
 		total += s.Complexity
 	}
 	return float64(total) / float64(len(stats))
+}
+
+func showStatsByPkg(stats []stat) {
+	pkgStats := statsByPkg(stats)
+
+	for pkg, s := range pkgStats {
+		fmt.Printf("%.3g %s \n", average(s), pkg)
+	}
+}
+
+func statsByPkg(stats []stat) map[string][]stat {
+	pkgStats := map[string][]stat{}
+	for _, s := range stats {
+		if _, ok := pkgStats[s.PkgName]; ok {
+			pkgStats[s.PkgName] = append(pkgStats[s.PkgName], s)
+		} else {
+			pkgStats[s.PkgName] = []stat{}
+		}
+	}
+	return pkgStats
 }
 
 type stat struct {
