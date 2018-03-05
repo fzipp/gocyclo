@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gregoryv/gocyclo"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -41,6 +42,14 @@ func TestAverage(t *testing.T) {
 	avg := gocyclo.Average(result)
 	if avg > 3.0 {
 		t.Errorf("%v", avg)
+	}
+}
+
+func TestStat_String(t *testing.T) {
+	result := gocyclo.Analyze([]string{"package_test.go"})
+	out := result[0].String()
+	if !strings.Contains(out, "package_test.go") {
+		t.Error(out)
 	}
 }
 
