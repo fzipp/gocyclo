@@ -7,8 +7,13 @@ import (
 	"testing"
 )
 
-func TestAnalyze(t *testing.T) {
-	files := must(filepath.Glob("*.go"))
+var files []string
+
+func init() {
+	files = must(filepath.Glob("*.go"))
+}
+
+func TestAssert(t *testing.T) {
 	all := append(files, "cmd/")
 	result, ok := gocyclo.Assert(all, 5)
 	if !ok {
@@ -24,11 +29,18 @@ func TestAnalyze(t *testing.T) {
 }
 
 func TestFilter(t *testing.T) {
-	files := must(filepath.Glob("*.go"))
 	result := gocyclo.Analyze(files)
 	filtered := gocyclo.Filter(result, 1, -1)
 	if len(filtered) != 1 {
 		t.Fail()
+	}
+}
+
+func TestAverage(t *testing.T) {
+	result := gocyclo.Analyze(files)
+	avg := gocyclo.Average(result)
+	if avg > 3.0 {
+		t.Errorf("%v", avg)
 	}
 }
 
