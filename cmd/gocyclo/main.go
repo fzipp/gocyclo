@@ -64,13 +64,13 @@ func main() {
 	}
 
 	stats := gocyclo.Analyze(args)
-	written := writeStats(os.Stdout, stats)
-
+	result := gocyclo.Filter(stats, *top, *over)
+	writeStats(os.Stdout, result)
 	if *avg {
 		showAverage(stats)
 	}
 
-	if *over > 0 && written > 0 {
+	if *over > 0 && len(result) > 0 {
 		os.Exit(1)
 	}
 }
@@ -80,17 +80,10 @@ func isDir(filename string) bool {
 	return err == nil && fi.IsDir()
 }
 
-func writeStats(w io.Writer, sortedStats []gocyclo.Stat) int {
-	for i, Stat := range sortedStats {
-		if i == *top {
-			return i
-		}
-		if Stat.Complexity <= *over {
-			return i
-		}
+func writeStats(w io.Writer, sortedStats []gocyclo.Stat) {
+	for _, Stat := range sortedStats {
 		fmt.Fprintln(w, Stat)
 	}
-	return len(sortedStats)
 }
 
 func showAverage(stats []gocyclo.Stat) {

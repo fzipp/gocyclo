@@ -16,6 +16,12 @@ import (
 	"strings"
 )
 
+func Assert(paths []string, over int) (result []Stat, ok bool) {
+	result = Filter(Analyze(paths), -1, over)
+	ok = len(result) == 0
+	return
+}
+
 func Analyze(paths []string) []Stat {
 	var stats []Stat
 	for _, path := range paths {
@@ -27,6 +33,20 @@ func Analyze(paths []string) []Stat {
 	}
 	sort.Sort(byComplexity(stats))
 	return stats
+}
+
+func Filter(sortedStats []Stat, top, over int) (filtered []Stat) {
+	filtered = make([]Stat, 0)
+	for i, stat := range sortedStats {
+		if i == top {
+			return
+		}
+		if stat.Complexity <= over {
+			return
+		}
+		filtered = append(filtered, stat)
+	}
+	return
 }
 
 func isDir(filename string) bool {
