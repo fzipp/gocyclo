@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/gregoryv/gocyclo.svg?branch=master)](https://travis-ci.org/gregoryv/stamp)
+[![Build Status](https://travis-ci.org/gregoryv/gocyclo.svg?branch=master)](https://travis-ci.org/gregoryv/gocyclo)
 [![codecov](https://codecov.io/gh/gregoryv/gocyclo/branch/master/graph/badge.svg)](https://codecov.io/gh/gregoryv/gocyclo)
 
 
