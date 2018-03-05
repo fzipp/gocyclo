@@ -38,13 +38,13 @@ The output fields for each line are:
 		if err != nil {
 			t.Fatal(err)
 		}
-		over := 5
-		result, ok := gocyclo.Assert(files, over)
+		max := 5
+		result, ok := gocyclo.Assert(files, max)
 		if !ok {
 			for _, l := range result {
 				fmt.Println(l)
 			}
-			t.Errorf("Minimum complexity %v not fulfilled", over)
+			t.Errorf("Exceeded maximum complexity %v", max)
 		}
 	}
 

@@ -53,6 +53,22 @@ func TestStat_String(t *testing.T) {
 	}
 }
 
+// TestComplexity is an example of how to use it in your own code
+func TestComplexity(t *testing.T) {
+	files, err := filepath.Glob("*.go")
+	if err != nil {
+		t.Fatal(err)
+	}
+	max := 5
+	result, ok := gocyclo.Assert(files, max)
+	if !ok {
+		for _, l := range result {
+			fmt.Println(l)
+		}
+		t.Errorf("Exceeded maximum complexity %v", max)
+	}
+}
+
 func must(result []string, err error) []string {
 	if err != nil {
 		panic(err)
