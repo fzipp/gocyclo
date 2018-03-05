@@ -34,13 +34,18 @@ The output fields for each line are:
 ## As unit test
 
     func TestComplexity(t *testing.T) {
-        files = must(filepath.Glob("*.go"))
+		files, err := filepath.Glob("*.go")
+		if err != nil {
+			t.Fatal(err)
+		}
 		over := 5
 		result, ok := gocyclo.Assert(files, over)
 		if !ok {
-		    for _, l := range result {
-			    fmt.Println(l)
-		    }
-		    t.Error("Minimum complexity %v not fulfilled", over)
+			for _, l := range result {
+				fmt.Println(l)
+			}
+			t.Errorf("Minimum complexity %v not fulfilled", over)
 		}
 	}
+
+
