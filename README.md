@@ -1,3 +1,7 @@
+[![Build Status](https://travis-ci.org/gregoryv/gocyclo.svg?branch=master)](https://travis-ci.org/gregoryv/stamp)
+[![codecov](https://codecov.io/gh/gregoryv/gocyclo/branch/master/graph/badge.svg)](https://codecov.io/gh/gregoryv/gocyclo)
+
+
 Gocyclo calculates cyclomatic complexities of functions in Go source code.
 
 The cyclomatic complexity of a function is calculated according to the
