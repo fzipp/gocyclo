@@ -2,29 +2,13 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// Gocyclo calculates the cyclomatic complexities of functions and
-// methods in Go source code.
-//
-// Usage:
-//      gocyclo [<flag> ...] <Go file or directory> ...
-//
-// Flags:
-//      -over N   show functions with complexity > N only and
-//                return exit code 1 if the output is non-empty
-//      -top N    show the top N most complex functions only
-//      -avg      show the average complexity
-//
-// The output fields for each line are:
-// <complexity> <package> <function> <file:row:column>
-package main
+package gocyclo
 
 import (
-	"flag"
 	"fmt"
 	"go/ast"
 	"go/parser"
 	"go/token"
-	"io"
 	"log"
 	"os"
 	"path/filepath"
@@ -32,57 +16,14 @@ import (
 	"strings"
 )
 
-const usageDoc = `Calculate cyclomatic complexities of Go functions.
-Usage:
-        gocyclo [flags] <Go file or directory> ...
-
-Flags:
-        -over N   show functions with complexity > N only and
-                  return exit code 1 if the set is non-empty
-        -top N    show the top N most complex functions only
-        -avg      show the average complexity over all functions,
-                  not depending on whether -over or -top are set
-
-The output fields for each line are:
-<complexity> <package> <function> <file:row:column>
-`
-
-func usage() {
-	fmt.Fprintf(os.Stderr, usageDoc)
-	os.Exit(2)
+func Assert(paths []string, over int) (result []Stat, ok bool) {
+	result = Filter(Analyze(paths), -1, over)
+	ok = len(result) == 0
+	return
 }
 
-var (
-	over = flag.Int("over", 0, "show functions with complexity > N only")
-	top  = flag.Int("top", -1, "show the top N most complex functions only")
-	avg  = flag.Bool("avg", false, "show the average complexity")
-)
-
-func main() {
-	log.SetFlags(0)
-	log.SetPrefix("gocyclo: ")
-	flag.Usage = usage
-	flag.Parse()
-	args := flag.Args()
-	if len(args) == 0 {
-		usage()
-	}
-
-	stats := analyze(args)
-	sort.Sort(byComplexity(stats))
-	written := writeStats(os.Stdout, stats)
-
-	if *avg {
-		showAverage(stats)
-	}
-
-	if *over > 0 && written > 0 {
-		os.Exit(1)
-	}
-}
-
-func analyze(paths []string) []stat {
-	var stats []stat
+func Analyze(paths []string) []Stat {
+	var stats []Stat
 	for _, path := range paths {
 		if isDir(path) {
 			stats = analyzeDir(path, stats)
@@ -90,7 +31,22 @@ func analyze(paths []string) []stat {
 			stats = analyzeFile(path, stats)
 		}
 	}
+	sort.Sort(byComplexity(stats))
 	return stats
+}
+
+func Filter(sortedStats []Stat, top, over int) (filtered []Stat) {
+	filtered = make([]Stat, 0)
+	for i, stat := range sortedStats {
+		if i == top {
+			return
+		}
+		if stat.Complexity <= over {
+			return
+		}
+		filtered = append(filtered, stat)
+	}
+	return
 }
 
 func isDir(filename string) bool {
@@ -98,7 +54,7 @@ func isDir(filename string) bool {
 	return err == nil && fi.IsDir()
 }
 
-func analyzeFile(fname string, stats []stat) []stat {
+func analyzeFile(fname string, stats []Stat) []Stat {
 	fset := token.NewFileSet()
 	f, err := parser.ParseFile(fset, fname, nil, 0)
 	if err != nil {
@@ -107,7 +63,7 @@ func analyzeFile(fname string, stats []stat) []stat {
 	return buildStats(f, fset, stats)
 }
 
-func analyzeDir(dirname string, stats []stat) []stat {
+func analyzeDir(dirname string, stats []Stat) []Stat {
 	filepath.Walk(dirname, func(path string, info os.FileInfo, err error) error {
 		if err == nil && !info.IsDir() && strings.HasSuffix(path, ".go") {
 			stats = analyzeFile(path, stats)
@@ -117,24 +73,7 @@ func analyzeDir(dirname string, stats []stat) []stat {
 	return stats
 }
 
-func writeStats(w io.Writer, sortedStats []stat) int {
-	for i, stat := range sortedStats {
-		if i == *top {
-			return i
-		}
-		if stat.Complexity <= *over {
-			return i
-		}
-		fmt.Fprintln(w, stat)
-	}
-	return len(sortedStats)
-}
-
-func showAverage(stats []stat) {
-	fmt.Printf("Average: %.3g\n", average(stats))
-}
-
-func average(stats []stat) float64 {
+func Average(stats []Stat) float64 {
 	total := 0
 	for _, s := range stats {
 		total += s.Complexity
@@ -142,18 +81,18 @@ func average(stats []stat) float64 {
 	return float64(total) / float64(len(stats))
 }
 
-type stat struct {
+type Stat struct {
 	PkgName    string
 	FuncName   string
 	Complexity int
 	Pos        token.Position
 }
 
-func (s stat) String() string {
+func (s Stat) String() string {
 	return fmt.Sprintf("%d %s %s %s", s.Complexity, s.PkgName, s.FuncName, s.Pos)
 }
 
-type byComplexity []stat
+type byComplexity []Stat
 
 func (s byComplexity) Len() int      { return len(s) }
 func (s byComplexity) Swap(i, j int) { s[i], s[j] = s[j], s[i] }
@@ -161,10 +100,10 @@ func (s byComplexity) Less(i, j int) bool {
 	return s[i].Complexity >= s[j].Complexity
 }
 
-func buildStats(f *ast.File, fset *token.FileSet, stats []stat) []stat {
+func buildStats(f *ast.File, fset *token.FileSet, stats []Stat) []Stat {
 	for _, decl := range f.Decls {
 		if fn, ok := decl.(*ast.FuncDecl); ok {
-			stats = append(stats, stat{
+			stats = append(stats, Stat{
 				PkgName:    f.Name.Name,
 				FuncName:   funcName(fn),
 				Complexity: complexity(fn),

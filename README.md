@@ -1,3 +1,7 @@
+[![Build Status](https://travis-ci.org/gregoryv/gocyclo.svg?branch=master)](https://travis-ci.org/gregoryv/gocyclo)
+[![codecov](https://codecov.io/gh/gregoryv/gocyclo/branch/master/graph/badge.svg)](https://codecov.io/gh/gregoryv/gocyclo)
+
+
 Gocyclo calculates cyclomatic complexities of functions in Go source code.
 
 The cyclomatic complexity of a function is calculated according to the
@@ -8,10 +12,7 @@ following rules:
 
 To install, run
 
-    $ go get github.com/fzipp/gocyclo
-
-and put the resulting binary in one of your PATH directories if
-`$GOPATH/bin` isn't already in your PATH.
+    $ go get -u github.com/gregoryv/gocyclo/...
 
 Usage:
 
@@ -22,10 +23,29 @@ Examples:
     $ gocyclo .
     $ gocyclo main.go
     $ gocyclo -top 10 src/
-    $ gocyclo -over 25 docker
+    $ gocyclo -over 5 *.go
     $ gocyclo -avg .
 
 The output fields for each line are:
 
     <complexity> <package> <function> <file:row:column>
+
+
+## As unit test
+
+    func TestComplexity(t *testing.T) {
+		files, err := filepath.Glob("*.go")
+		if err != nil {
+			t.Fatal(err)
+		}
+		max := 5
+		result, ok := gocyclo.Assert(files, max)
+		if !ok {
+			for _, l := range result {
+				fmt.Println(l)
+			}
+			t.Errorf("Exceeded maximum complexity %v", max)
+		}
+	}
+
 
