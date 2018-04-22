@@ -13,6 +13,9 @@
 //                return exit code 1 if the output is non-empty
 //      -top N    show the top N most complex functions only
 //      -avg      show the average complexity
+//      -total    show the total complexity
+//      -exclude  exclude directory regex
+//      -value    only display the value for avg and total in output
 //
 // The output fields for each line are:
 // <complexity> <package> <function> <file:row:column>
@@ -28,6 +31,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strings"
 )
@@ -42,6 +46,9 @@ Flags:
         -top N    show the top N most complex functions only
         -avg      show the average complexity over all functions,
                   not depending on whether -over or -top are set
+        -total    show the total complexity for all functions
+        -exclude  exclude directory regex
+        -value    only display the value for avg and total in output
 
 The output fields for each line are:
 <complexity> <package> <function> <file:row:column>
@@ -53,9 +60,12 @@ func usage() {
 }
 
 var (
-	over = flag.Int("over", 0, "show functions with complexity > N only")
-	top  = flag.Int("top", -1, "show the top N most complex functions only")
-	avg  = flag.Bool("avg", false, "show the average complexity")
+	over    = flag.Int("over", 0, "show functions with complexity > N only")
+	top     = flag.Int("top", -1, "show the top N most complex functions only")
+	avg     = flag.Bool("avg", false, "show the average complexity")
+	total   = flag.Bool("total", false, "show the total complexity")
+	exclude = flag.String("exclude", "", "exclude directory regex")
+	value   = flag.Bool("value", false, "only show the value for avg and total in output")
 )
 
 func main() {
@@ -68,24 +78,39 @@ func main() {
 		usage()
 	}
 
-	stats := analyze(args)
-	sort.Sort(byComplexity(stats))
-	written := writeStats(os.Stdout, stats)
+	stats := analyze(args, *exclude)
+	if *value && (*avg || *total) {
+		if *avg {
+			fmt.Printf("%.3g\n", average(stats))
+		}
+		if *total {
+			fmt.Printf("%d\n", sumtotal(stats))
+		}
 
-	if *avg {
-		showAverage(stats)
-	}
+	} else {
 
-	if *over > 0 && written > 0 {
-		os.Exit(1)
+		sort.Sort(byComplexity(stats))
+		written := writeStats(os.Stdout, stats)
+
+		if *avg {
+			showAverage(stats)
+		}
+
+		if *total {
+			showTotal(stats)
+		}
+
+		if *over > 0 && written > 0 {
+			os.Exit(1)
+		}
 	}
 }
 
-func analyze(paths []string) []stat {
+func analyze(paths []string, exclude string) []stat {
 	var stats []stat
 	for _, path := range paths {
 		if isDir(path) {
-			stats = analyzeDir(path, stats)
+			stats = analyzeDir(path, exclude, stats)
 		} else {
 			stats = analyzeFile(path, stats)
 		}
@@ -107,10 +132,17 @@ func analyzeFile(fname string, stats []stat) []stat {
 	return buildStats(f, fset, stats)
 }
 
-func analyzeDir(dirname string, stats []stat) []stat {
+func analyzeDir(dirname string, exclude string, stats []stat) []stat {
 	filepath.Walk(dirname, func(path string, info os.FileInfo, err error) error {
 		if err == nil && !info.IsDir() && strings.HasSuffix(path, ".go") {
-			stats = analyzeFile(path, stats)
+			if exclude != "" {
+				matched, _ := regexp.MatchString(exclude, path)
+				if matched != true {
+					stats = analyzeFile(path, stats)
+				}
+			} else {
+				stats = analyzeFile(path, stats)
+			}
 		}
 		return err
 	})
@@ -140,6 +172,18 @@ func average(stats []stat) float64 {
 		total += s.Complexity
 	}
 	return float64(total) / float64(len(stats))
+}
+
+func showTotal(stats []stat) {
+	fmt.Printf("Total: %d\n", sumtotal(stats))
+}
+
+func sumtotal(stats []stat) uint64 {
+	total := uint64(0)
+	for _, s := range stats {
+		total += uint64(s.Complexity)
+	}
+	return total
 }
 
 type stat struct {
