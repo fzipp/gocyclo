@@ -15,6 +15,7 @@
 //      -avg      show the average complexity
 //      -total    show the total complexity
 //      -exclude  exclude directory regex
+//      -value    only display the value for avg and total in output
 //
 // The output fields for each line are:
 // <complexity> <package> <function> <file:row:column>
@@ -47,6 +48,7 @@ Flags:
                   not depending on whether -over or -top are set
         -total    show the total complexity for all functions
         -exclude  exclude directory regex
+        -value    only display the value for avg and total in output
 
 The output fields for each line are:
 <complexity> <package> <function> <file:row:column>
@@ -63,6 +65,7 @@ var (
 	avg     = flag.Bool("avg", false, "show the average complexity")
 	total   = flag.Bool("total", false, "show the total complexity")
 	exclude = flag.String("exclude", "", "exclude directory regex")
+	value   = flag.Bool("value", false, "only show the value for avg and total in output")
 )
 
 func main() {
@@ -76,19 +79,30 @@ func main() {
 	}
 
 	stats := analyze(args, *exclude)
-	sort.Sort(byComplexity(stats))
-	written := writeStats(os.Stdout, stats)
+	if *value && (*avg || *total) {
+		if *avg {
+			fmt.Printf("%.3g\n", average(stats))
+		}
+		if *total {
+			fmt.Printf("%d\n", sumtotal(stats))
+		}
 
-	if *avg {
-		showAverage(stats)
-	}
+	} else {
 
-	if *total {
-		showTotal(stats)
-	}
+		sort.Sort(byComplexity(stats))
+		written := writeStats(os.Stdout, stats)
 
-	if *over > 0 && written > 0 {
-		os.Exit(1)
+		if *avg {
+			showAverage(stats)
+		}
+
+		if *total {
+			showTotal(stats)
+		}
+
+		if *over > 0 && written > 0 {
+			os.Exit(1)
+		}
 	}
 }
 
