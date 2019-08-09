@@ -1,0 +1,35 @@
+language: go
+env:
+  matrix:
+    - GO111MODULE=on
+matrix:
+  include:
+    - os: linux
+      go: 1.12.x
+      cache:
+        directories:
+          - "/home/travis/.cache/go-build" # GOCACHE
+    - os: osx
+      go: 1.12.x
+      cache:
+        directories:
+          - "/Users/travis/Library/Caches/go-build" # GOCACHE
+    # - os: windows
+    #   go: 1.12.x
+before_script:
+  - go mod graph
+script:
+  - go test ./... -race
+before_deploy:
+  - make dist
+deploy:
+  provider: releases
+  api_key:
+    secure: T8CNwLmHNGkY2m81Je4oU6yl+BnPAqgwTgSmXvdAtWgJpqqAQAoS3pAWr1e0VUwgCMnG/OvkQCWApOtpJviQvykK6ESle5KqUWJpWWPIZnJtLH0unZg8SZHE4aet/kUz7z+QCY2alxNFKGHHkNK3FduFvTQYBByYOq/4aHhIiT4n3QxWKm6ZJTGCsup95wfoJFPbKwwcp8akAvATD0GxTGcuoqXoYnJABoyh7Lio3QdrOMhf9t70eZvkSkDUcOpPBsugYBN3RDwTMyBzNueXiBc9Z5E+Dbjl+vjjkjgdQIFPE9JWQhwXN55QIKIPStzDSnZnCMa8PvEYrs1Nc1HTIswM3TtE0JpxuGYxAZYAEL/L4kVKaWjT+kJC+/UL7wJuVFVBKvX7+YIU2r324jMNQx6wOeZMjgoXyXcRMouYLcPBMqhBAclxl1bNMW6bYE/ZYIsHPfNKK6yNI6ur/YRysQ5Hi8TvmJ0AbOoYvuvA0ypIQtEcF2aLwRU98/y0E2of8sCHgSW90iGkI3Dfh7ylcV4Op8FqHKpLnLPRaiDO+S4am/wDTjE7WD4rCpbTNz0znQtPrnppk/FQMB1xKvXii54WjSaoRoBdlKFT3HjeTfK6rnC5UAc5rRMej1+k7Wy+UL9aaO81o9TkPdgA77Xn0/ch022BtU1BGBCUkW/Zv5c=
+  file_glob: true
+  file: bin/gocyclo-*
+  on:
+    repo: adamdecaf/gocyclo
+    tags: true
+    go: 1.12.x
+  skip_cleanup: true
