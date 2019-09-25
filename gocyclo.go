@@ -163,7 +163,25 @@ func (s byComplexity) Less(i, j int) bool {
 
 func buildStats(f *ast.File, fset *token.FileSet, stats []stat) []stat {
 	for _, decl := range f.Decls {
-		if fn, ok := decl.(*ast.FuncDecl); ok {
+		switch fn := decl.(type) {
+		// FuncLit
+		case *ast.GenDecl:
+			for _, spec := range fn.Specs {
+				if valueSpec, ok := spec.(*ast.ValueSpec); ok {
+					for _, value := range valueSpec.Values {
+						if funcLit, ok := value.(*ast.FuncLit); ok {
+							stats = append(stats, stat{
+								PkgName:    f.Name.Name,
+								FuncName:   valueSpec.Names[0].Name,
+								Complexity: complexity(funcLit.Body),
+								Pos:        fset.Position(fn.Pos()),
+							})
+						}
+					}
+				}
+			}
+		// FuncDecl
+		case *ast.FuncDecl:
 			stats = append(stats, stat{
 				PkgName:    f.Name.Name,
 				FuncName:   funcName(fn),
@@ -200,7 +218,7 @@ func recvString(recv ast.Expr) string {
 }
 
 // complexity calculates the cyclomatic complexity of a function.
-func complexity(fn *ast.FuncDecl) int {
+func complexity(fn ast.Node) int {
 	v := complexityVisitor{}
 	ast.Walk(&v, fn)
 	return v.Complexity
