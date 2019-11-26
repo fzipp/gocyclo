@@ -13,7 +13,6 @@
 //                return exit code 1 if the output is non-empty
 //      -top N    show the top N most complex functions only
 //      -avg      show the average complexity
-//      -skiptest skip test files when calculating complexity
 //      -short    only print the average without additional
 //                formatting or output, ignores all other options
 //
