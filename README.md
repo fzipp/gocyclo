@@ -1,3 +1,5 @@
+[![CodeFactor](https://www.codefactor.io/repository/github/fzipp/gocyclo/badge)](https://www.codefactor.io/repository/github/fzipp/gocyclo)
+
 Gocyclo calculates cyclomatic complexities of functions in Go source code.
 
 The cyclomatic complexity of a function is calculated according to the
