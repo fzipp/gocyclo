@@ -6,20 +6,28 @@ package main
 
 import (
 	"fmt"
-	"io"
+	"sort"
 )
 
-func writeStats(w io.Writer, sortedStats []stat, top, over int) int {
-	for i, stat := range sortedStats {
+func sortAndFilterStats(stats []stat, top, over int) []stat {
+	sort.Sort(byComplexityDesc(stats))
+	i := 0
+	for _, stat := range stats {
 		if i == top {
-			return i
+			break
 		}
 		if stat.Complexity <= over {
-			return i
+			break
 		}
-		fmt.Fprintln(w, stat)
+		i++
 	}
-	return len(sortedStats)
+	return stats[:i]
+}
+
+func printStats(stats []stat) {
+	for _, stat := range stats {
+		fmt.Println(stat)
+	}
 }
 
 func showAverage(stats []stat) {

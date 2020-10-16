@@ -24,7 +24,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"sort"
 )
 
 const usageDoc = `Calculate cyclomatic complexities of Go functions.
@@ -58,24 +57,24 @@ func main() {
 	log.SetPrefix("gocyclo: ")
 	flag.Usage = usage
 	flag.Parse()
-	args := flag.Args()
-	if len(args) == 0 {
+	paths := flag.Args()
+	if len(paths) == 0 {
 		usage()
 	}
 
-	stats := analyze(args)
-	sort.Sort(byComplexityDesc(stats))
-	written := writeStats(os.Stdout, stats, *top, *over)
+	allStats := analyze(paths)
+	shownStats := sortAndFilterStats(allStats, *top, *over)
+	printStats(shownStats)
 
 	if *avg {
-		showAverage(stats)
+		showAverage(allStats)
 	}
 
 	if *total {
-		showTotal(stats)
+		showTotal(allStats)
 	}
 
-	if *over > 0 && written > 0 {
+	if *over > 0 && len(shownStats) > 0 {
 		os.Exit(1)
 	}
 }
