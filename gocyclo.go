@@ -72,7 +72,7 @@ func main() {
 	}
 
 	stats := analyze(args)
-	sort.Sort(byComplexity(stats))
+	sort.Sort(byComplexityDesc(stats))
 	written := writeStats(os.Stdout, stats)
 
 	if *avg {
@@ -172,11 +172,11 @@ func (s stat) String() string {
 	return fmt.Sprintf("%d %s %s %s", s.Complexity, s.PkgName, s.FuncName, s.Pos)
 }
 
-type byComplexity []stat
+type byComplexityDesc []stat
 
-func (s byComplexity) Len() int      { return len(s) }
-func (s byComplexity) Swap(i, j int) { s[i], s[j] = s[j], s[i] }
-func (s byComplexity) Less(i, j int) bool {
+func (s byComplexityDesc) Len() int      { return len(s) }
+func (s byComplexityDesc) Swap(i, j int) { s[i], s[j] = s[j], s[i] }
+func (s byComplexityDesc) Less(i, j int) bool {
 	return s[i].Complexity >= s[j].Complexity
 }
 
