@@ -21,7 +21,9 @@ func (s Stat) String() string {
 	return fmt.Sprintf("%d %s %s %s", s.Complexity, s.PkgName, s.FuncName, s.Pos)
 }
 
-func SortAndFilterStats(stats []Stat, top, over int) []Stat {
+type Stats []Stat
+
+func SortAndFilterStats(stats Stats, top, over int) Stats {
 	sort.Sort(byComplexityDesc(stats))
 	for i, stat := range stats {
 		if i == top {
@@ -34,7 +36,7 @@ func SortAndFilterStats(stats []Stat, top, over int) []Stat {
 	return stats
 }
 
-type byComplexityDesc []Stat
+type byComplexityDesc Stats
 
 func (s byComplexityDesc) Len() int      { return len(s) }
 func (s byComplexityDesc) Swap(i, j int) { s[i], s[j] = s[j], s[i] }

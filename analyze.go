@@ -15,8 +15,8 @@ import (
 	"strings"
 )
 
-func Analyze(paths []string) []Stat {
-	var stats []Stat
+func Analyze(paths []string) Stats {
+	var stats Stats
 	for _, path := range paths {
 		if isDir(path) {
 			stats = analyzeDir(path, stats)
@@ -32,7 +32,7 @@ func isDir(filename string) bool {
 	return err == nil && fi.IsDir()
 }
 
-func analyzeDir(dirname string, stats []Stat) []Stat {
+func analyzeDir(dirname string, stats Stats) Stats {
 	filepath.Walk(dirname, func(path string, info os.FileInfo, err error) error {
 		if err == nil && !info.IsDir() && strings.HasSuffix(path, ".go") {
 			stats = analyzeFile(path, stats)
@@ -42,7 +42,7 @@ func analyzeDir(dirname string, stats []Stat) []Stat {
 	return stats
 }
 
-func analyzeFile(fname string, stats []Stat) []Stat {
+func analyzeFile(fname string, stats Stats) Stats {
 	fset := token.NewFileSet()
 	f, err := parser.ParseFile(fset, fname, nil, parser.ParseComments)
 	if err != nil {
@@ -60,7 +60,7 @@ func analyzeFile(fname string, stats []Stat) []Stat {
 type fileAnalyzer struct {
 	file    *ast.File
 	fileSet *token.FileSet
-	stats   []Stat
+	stats   Stats
 }
 
 func (a *fileAnalyzer) analyze() {
