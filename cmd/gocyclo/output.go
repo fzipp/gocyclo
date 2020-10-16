@@ -15,11 +15,11 @@ func printStats(stats []gocyclo.Stat) {
 	}
 }
 
-func showAverage(stats []gocyclo.Stat) {
+func printAverage(stats []gocyclo.Stat) {
 	fmt.Printf("Average: %.3g\n", average(stats))
 }
 
-func showTotal(stats []gocyclo.Stat) {
+func printTotal(stats []gocyclo.Stat) {
 	fmt.Printf("Total: %d\n", sumTotal(stats))
 }
 

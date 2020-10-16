@@ -64,11 +64,11 @@ func main() {
 	printStats(shownStats)
 
 	if *avg {
-		showAverage(allStats)
+		printAverage(allStats)
 	}
 
 	if *total {
-		showTotal(allStats)
+		printTotal(allStats)
 	}
 
 	if *over > 0 && len(shownStats) > 0 {
