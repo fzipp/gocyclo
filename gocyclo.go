@@ -181,23 +181,43 @@ func (s byComplexity) Less(i, j int) bool {
 }
 
 func buildStats(f *ast.File, fset *token.FileSet, stats []stat) []stat {
-	for _, decl := range f.Decls {
-		fn, ok := decl.(*ast.FuncDecl)
-		if !ok {
-			continue
+	for _, declaration := range f.Decls {
+		switch decl := declaration.(type) {
+		case *ast.FuncDecl:
+			stats = addStatIfNotIgnored(stats, decl, funcName(decl), decl.Doc, f, fset)
+		case *ast.GenDecl:
+			for _, spec := range decl.Specs {
+				valueSpec, ok := spec.(*ast.ValueSpec)
+				if !ok {
+					continue
+				}
+				for _, value := range valueSpec.Values {
+					funcLit, ok := value.(*ast.FuncLit)
+					if !ok {
+						continue
+					}
+					stats = addStatIfNotIgnored(stats, funcLit, valueSpec.Names[0].Name, decl.Doc, f, fset)
+				}
+			}
 		}
-		directives := parseDirectives(fn.Doc)
-		if directives.HasIgnore() {
-			continue
-		}
-		stats = append(stats, stat{
-			PkgName:    f.Name.Name,
-			FuncName:   funcName(fn),
-			Complexity: complexity(fn),
-			Pos:        fset.Position(fn.Pos()),
-		})
 	}
 	return stats
+}
+
+func addStatIfNotIgnored(stats []stat, funcNode ast.Node, funcName string, doc *ast.CommentGroup, f *ast.File, fset *token.FileSet) []stat {
+	if parseDirectives(doc).HasIgnore() {
+		return stats
+	}
+	return append(stats, statForFunc(funcNode, funcName, f, fset))
+}
+
+func statForFunc(funcNode ast.Node, funcName string, f *ast.File, fset *token.FileSet) stat {
+	return stat{
+		PkgName:    f.Name.Name,
+		FuncName:   funcName,
+		Complexity: complexity(funcNode),
+		Pos:        fset.Position(funcNode.Pos()),
+	}
 }
 
 // funcName returns the name representation of a function or method:
@@ -225,7 +245,7 @@ func recvString(recv ast.Expr) string {
 }
 
 // complexity calculates the cyclomatic complexity of a function.
-func complexity(fn *ast.FuncDecl) int {
+func complexity(fn ast.Node) int {
 	v := complexityVisitor{}
 	ast.Walk(&v, fn)
 	return v.Complexity
