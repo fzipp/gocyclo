@@ -27,11 +27,7 @@ func showAverage(stats []stat) {
 }
 
 func average(stats []stat) float64 {
-	total := 0
-	for _, s := range stats {
-		total += s.Complexity
-	}
-	return float64(total) / float64(len(stats))
+	return float64(sumTotal(stats)) / float64(len(stats))
 }
 
 func showTotal(stats []stat) {
