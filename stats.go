@@ -24,16 +24,18 @@ func (s Stat) String() string {
 type Stats []Stat
 
 func SortAndFilterStats(stats Stats, top, over int) Stats {
-	sort.Sort(byComplexityDesc(stats))
-	for i, stat := range stats {
+	result := make(Stats, len(stats))
+	copy(result, stats)
+	sort.Sort(byComplexityDesc(result))
+	for i, stat := range result {
 		if i == top {
-			return stats[:i]
+			return result[:i]
 		}
 		if stat.Complexity <= over {
-			return stats[:i]
+			return result[:i]
 		}
 	}
-	return stats
+	return result
 }
 
 type byComplexityDesc Stats
