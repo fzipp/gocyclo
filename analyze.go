@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package main
+package gocyclo
 
 import (
 	"fmt"
@@ -15,8 +15,8 @@ import (
 	"strings"
 )
 
-func analyze(paths []string) []stat {
-	var stats []stat
+func Analyze(paths []string) []Stat {
+	var stats []Stat
 	for _, path := range paths {
 		if isDir(path) {
 			stats = analyzeDir(path, stats)
@@ -32,7 +32,7 @@ func isDir(filename string) bool {
 	return err == nil && fi.IsDir()
 }
 
-func analyzeDir(dirname string, stats []stat) []stat {
+func analyzeDir(dirname string, stats []Stat) []Stat {
 	filepath.Walk(dirname, func(path string, info os.FileInfo, err error) error {
 		if err == nil && !info.IsDir() && strings.HasSuffix(path, ".go") {
 			stats = analyzeFile(path, stats)
@@ -42,7 +42,7 @@ func analyzeDir(dirname string, stats []stat) []stat {
 	return stats
 }
 
-func analyzeFile(fname string, stats []stat) []stat {
+func analyzeFile(fname string, stats []Stat) []Stat {
 	fset := token.NewFileSet()
 	f, err := parser.ParseFile(fset, fname, nil, parser.ParseComments)
 	if err != nil {
@@ -60,7 +60,7 @@ func analyzeFile(fname string, stats []stat) []stat {
 type fileAnalyzer struct {
 	file    *ast.File
 	fileSet *token.FileSet
-	stats   []stat
+	stats   []Stat
 }
 
 func (a *fileAnalyzer) analyze() {
@@ -94,10 +94,10 @@ func (a *fileAnalyzer) addStatIfNotIgnored(node ast.Node, funcName string, doc *
 	if parseDirectives(doc).HasIgnore() {
 		return
 	}
-	a.stats = append(a.stats, stat{
+	a.stats = append(a.stats, Stat{
 		PkgName:    a.file.Name.Name,
 		FuncName:   funcName,
-		Complexity: complexity(node),
+		Complexity: Complexity(node),
 		Pos:        a.fileSet.Position(node.Pos()),
 	})
 }

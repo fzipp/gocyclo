@@ -24,6 +24,8 @@ import (
 	"fmt"
 	"log"
 	"os"
+
+	"github.com/fzipp/gocyclo"
 )
 
 const usageDoc = `Calculate cyclomatic complexities of Go functions.
@@ -57,8 +59,8 @@ func main() {
 		usage()
 	}
 
-	allStats := analyze(paths)
-	shownStats := sortAndFilterStats(allStats, *top, *over)
+	allStats := gocyclo.Analyze(paths)
+	shownStats := gocyclo.SortAndFilterStats(allStats, *top, *over)
 	printStats(shownStats)
 
 	if *avg {

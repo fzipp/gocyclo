@@ -2,22 +2,22 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package main
+package gocyclo
 
 import (
 	"go/ast"
 	"go/token"
 )
 
-// complexity calculates the cyclomatic complexity of a function.
-func complexity(fn ast.Node) int {
+// Complexity calculates the cyclomatic Complexity of a function.
+func Complexity(fn ast.Node) int {
 	v := complexityVisitor{}
 	ast.Walk(&v, fn)
 	return v.Complexity
 }
 
 type complexityVisitor struct {
-	// Complexity is the cyclomatic complexity
+	// Complexity is the cyclomatic Complexity
 	Complexity int
 }
 
