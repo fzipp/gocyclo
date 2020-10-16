@@ -13,6 +13,7 @@
 //                return exit code 1 if the output is non-empty
 //      -top N    show the top N most complex functions only
 //      -avg      show the average complexity
+//      -total    show the total complexity
 //
 // The output fields for each line are:
 // <complexity> <package> <function> <file:row:column>
@@ -42,6 +43,7 @@ Flags:
         -top N    show the top N most complex functions only
         -avg      show the average complexity over all functions,
                   not depending on whether -over or -top are set
+        -total    show the total complexity for all functions
 
 The output fields for each line are:
 <complexity> <package> <function> <file:row:column>
@@ -53,9 +55,10 @@ func usage() {
 }
 
 var (
-	over = flag.Int("over", 0, "show functions with complexity > N only")
-	top  = flag.Int("top", -1, "show the top N most complex functions only")
-	avg  = flag.Bool("avg", false, "show the average complexity")
+	over  = flag.Int("over", 0, "show functions with complexity > N only")
+	top   = flag.Int("top", -1, "show the top N most complex functions only")
+	avg   = flag.Bool("avg", false, "show the average complexity")
+	total = flag.Bool("total", false, "show the total complexity")
 )
 
 func main() {
@@ -74,6 +77,10 @@ func main() {
 
 	if *avg {
 		showAverage(stats)
+	}
+
+	if *total {
+		showTotal(stats)
 	}
 
 	if *over > 0 && written > 0 {
@@ -140,6 +147,18 @@ func average(stats []stat) float64 {
 		total += s.Complexity
 	}
 	return float64(total) / float64(len(stats))
+}
+
+func showTotal(stats []stat) {
+	fmt.Printf("Total: %d\n", sumtotal(stats))
+}
+
+func sumtotal(stats []stat) uint64 {
+	total := uint64(0)
+	for _, s := range stats {
+		total += uint64(s.Complexity)
+	}
+	return total
 }
 
 type stat struct {
