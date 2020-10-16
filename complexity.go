@@ -9,26 +9,26 @@ import (
 	"go/token"
 )
 
-// Complexity calculates the cyclomatic Complexity of a function.
+// Complexity calculates the cyclomatic complexity of a function.
 func Complexity(fn ast.Node) int {
 	v := complexityVisitor{}
 	ast.Walk(&v, fn)
-	return v.Complexity
+	return v.complexity
 }
 
 type complexityVisitor struct {
-	// Complexity is the cyclomatic Complexity
-	Complexity int
+	// complexity is the cyclomatic complexity
+	complexity int
 }
 
 // Visit implements the ast.Visitor interface.
 func (v *complexityVisitor) Visit(n ast.Node) ast.Visitor {
 	switch n := n.(type) {
 	case *ast.FuncDecl, *ast.IfStmt, *ast.ForStmt, *ast.RangeStmt, *ast.CaseClause, *ast.CommClause:
-		v.Complexity++
+		v.complexity++
 	case *ast.BinaryExpr:
 		if n.Op == token.LAND || n.Op == token.LOR {
-			v.Complexity++
+			v.complexity++
 		}
 	}
 	return v
