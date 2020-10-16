@@ -11,17 +11,15 @@ import (
 
 func sortAndFilterStats(stats []stat, top, over int) []stat {
 	sort.Sort(byComplexityDesc(stats))
-	i := 0
-	for _, stat := range stats {
+	for i, stat := range stats {
 		if i == top {
-			break
+			return stats[:i]
 		}
 		if stat.Complexity <= over {
-			break
+			return stats[:i]
 		}
-		i++
 	}
-	return stats[:i]
+	return stats
 }
 
 func printStats(stats []stat) {

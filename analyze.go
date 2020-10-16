@@ -53,7 +53,7 @@ func analyzeFile(fname string, stats []stat) []stat {
 		fileSet: fset,
 		stats:   stats,
 	}
-	analyzer.Analyze()
+	analyzer.analyze()
 	return analyzer.stats
 }
 
@@ -63,38 +63,42 @@ type fileAnalyzer struct {
 	stats   []stat
 }
 
-func (a *fileAnalyzer) Analyze() {
-	for _, declaration := range a.file.Decls {
-		switch decl := declaration.(type) {
-		case *ast.FuncDecl:
-			a.addStatIfNotIgnored(decl, funcName(decl), decl.Doc)
-		case *ast.GenDecl:
-			for _, spec := range decl.Specs {
-				valueSpec, ok := spec.(*ast.ValueSpec)
+func (a *fileAnalyzer) analyze() {
+	for _, decl := range a.file.Decls {
+		a.analyzeDecl(decl)
+	}
+}
+
+func (a *fileAnalyzer) analyzeDecl(d ast.Decl) {
+	switch decl := d.(type) {
+	case *ast.FuncDecl:
+		a.addStatIfNotIgnored(decl, funcName(decl), decl.Doc)
+	case *ast.GenDecl:
+		for _, spec := range decl.Specs {
+			valueSpec, ok := spec.(*ast.ValueSpec)
+			if !ok {
+				continue
+			}
+			for _, value := range valueSpec.Values {
+				funcLit, ok := value.(*ast.FuncLit)
 				if !ok {
 					continue
 				}
-				for _, value := range valueSpec.Values {
-					funcLit, ok := value.(*ast.FuncLit)
-					if !ok {
-						continue
-					}
-					a.addStatIfNotIgnored(funcLit, valueSpec.Names[0].Name, decl.Doc)
-				}
+				a.addStatIfNotIgnored(funcLit, valueSpec.Names[0].Name, decl.Doc)
 			}
 		}
 	}
 }
 
-func (a *fileAnalyzer) addStatIfNotIgnored(funcNode ast.Node, funcName string, doc *ast.CommentGroup) {
+func (a *fileAnalyzer) addStatIfNotIgnored(node ast.Node, funcName string, doc *ast.CommentGroup) {
 	if parseDirectives(doc).HasIgnore() {
 		return
 	}
 	a.stats = append(a.stats, stat{
 		PkgName:    a.file.Name.Name,
 		FuncName:   funcName,
-		Complexity: complexity(funcNode),
-		Pos:        a.fileSet.Position(funcNode.Pos()),
+		Complexity: complexity(node),
+		Pos:        a.fileSet.Position(node.Pos()),
 	})
 }
 
