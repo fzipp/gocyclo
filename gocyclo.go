@@ -100,7 +100,7 @@ func isDir(filename string) bool {
 
 func analyzeFile(fname string, stats []stat) []stat {
 	fset := token.NewFileSet()
-	f, err := parser.ParseFile(fset, fname, nil, 0)
+	f, err := parser.ParseFile(fset, fname, nil, parser.ParseComments)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -163,14 +163,20 @@ func (s byComplexity) Less(i, j int) bool {
 
 func buildStats(f *ast.File, fset *token.FileSet, stats []stat) []stat {
 	for _, decl := range f.Decls {
-		if fn, ok := decl.(*ast.FuncDecl); ok {
-			stats = append(stats, stat{
-				PkgName:    f.Name.Name,
-				FuncName:   funcName(fn),
-				Complexity: complexity(fn),
-				Pos:        fset.Position(fn.Pos()),
-			})
+		fn, ok := decl.(*ast.FuncDecl)
+		if !ok {
+			continue
 		}
+		directives := parseDirectives(fn.Doc)
+		if directives.HasIgnore() {
+			continue
+		}
+		stats = append(stats, stat{
+			PkgName:    f.Name.Name,
+			FuncName:   funcName(fn),
+			Complexity: complexity(fn),
+			Pos:        fset.Position(fn.Pos()),
+		})
 	}
 	return stats
 }
@@ -222,4 +228,33 @@ func (v *complexityVisitor) Visit(n ast.Node) ast.Visitor {
 		}
 	}
 	return v
+}
+
+type directives []string
+
+func (ds directives) HasIgnore() bool {
+	return ds.isPresent("ignore")
+}
+
+func (ds directives) isPresent(name string) bool {
+	for _, d := range ds {
+		if d == name {
+			return true
+		}
+	}
+	return false
+}
+
+func parseDirectives(doc *ast.CommentGroup) directives {
+	if doc == nil {
+		return directives{}
+	}
+	const prefix = "//gocyclo:"
+	var ds directives
+	for _, comment := range doc.List {
+		if strings.HasPrefix(comment.Text, prefix) {
+			ds = append(ds, strings.TrimPrefix(comment.Text, prefix))
+		}
+	}
+	return ds
 }
