@@ -48,14 +48,12 @@ func usage() {
 	os.Exit(2)
 }
 
-var (
-	over  = flag.Int("over", 0, "show functions with complexity > N only")
-	top   = flag.Int("top", -1, "show the top N most complex functions only")
-	avg   = flag.Bool("avg", false, "show the average complexity")
-	total = flag.Bool("total", false, "show the total complexity")
-)
-
 func main() {
+	over := flag.Int("over", 0, "show functions with complexity > N only")
+	top := flag.Int("top", -1, "show the top N most complex functions only")
+	avg := flag.Bool("avg", false, "show the average complexity")
+	total := flag.Bool("total", false, "show the total complexity")
+
 	log.SetFlags(0)
 	log.SetPrefix("gocyclo: ")
 	flag.Usage = usage
