@@ -42,11 +42,6 @@ The output fields for each line are:
 <complexity> <package> <function> <file:row:column>
 `
 
-func usage() {
-	fmt.Fprintf(os.Stderr, usageDoc)
-	os.Exit(2)
-}
-
 func main() {
 	over := flag.Int("over", 0, "show functions with complexity > N only")
 	top := flag.Int("top", -1, "show the top N most complex functions only")
@@ -77,4 +72,9 @@ func main() {
 	if *over > 0 && len(shownStats) > 0 {
 		os.Exit(1)
 	}
+}
+
+func usage() {
+	_, _ = fmt.Fprintf(os.Stderr, usageDoc)
+	os.Exit(2)
 }
