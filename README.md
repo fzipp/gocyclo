@@ -29,3 +29,9 @@ The output fields for each line are:
 
     <complexity> <package> <function> <file:row:column>
 
+Individual functions can be ignored with a `gocyclo:ignore` directive:
+
+    //gocyclo:ignore
+    func f() {
+        // ...
+    }
