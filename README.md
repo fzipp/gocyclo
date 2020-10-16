@@ -8,7 +8,7 @@ following rules:
 
 To install, run
 
-    $ go get github.com/fzipp/gocyclo
+    $ go get github.com/fzipp/gocyclo/cmd/gocyclo
 
 and put the resulting binary in one of your PATH directories if
 `$GOPATH/bin` isn't already in your PATH.
