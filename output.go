@@ -9,12 +9,12 @@ import (
 	"io"
 )
 
-func writeStats(w io.Writer, sortedStats []stat) int {
+func writeStats(w io.Writer, sortedStats []stat, top, over int) int {
 	for i, stat := range sortedStats {
-		if i == *top {
+		if i == top {
 			return i
 		}
-		if stat.Complexity <= *over {
+		if stat.Complexity <= over {
 			return i
 		}
 		fmt.Fprintln(w, stat)
