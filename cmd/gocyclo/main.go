@@ -6,15 +6,17 @@
 // methods in Go source code.
 //
 // Usage:
-//      gocyclo [<flag> ...] <Go file or directory> ...
+//     gocyclo [<flag> ...] <Go file or directory> ...
 //
 // Flags:
-//      -over N        show functions with complexity > N only and
-//                     return exit code 1 if the output is non-empty
-//      -top N         show the top N most complex functions only
-//      -avg           show the average complexity
-//      -total         show the total complexity
-//      -ignore REGEX  exclude files matching the given regular expression
+//     -over N               show functions with complexity > N only and
+//                           return exit code 1 if the output is non-empty
+//     -top N                show the top N most complex functions only
+//     -avg, -avg-short      show the average complexity;
+//                           the short option prints the value without a label
+//     -total, -total-short  show the total complexity;
+//                           the short option prints the value without a label
+//     -ignore REGEX         exclude files matching the given regular expression
 //
 // The output fields for each line are:
 // <complexity> <package> <function> <file:row:column>
@@ -32,16 +34,17 @@ import (
 
 const usageDoc = `Calculate cyclomatic complexities of Go functions.
 Usage:
-        gocyclo [flags] <Go file or directory> ...
+    gocyclo [flags] <Go file or directory> ...
 
 Flags:
-        -over N        show functions with complexity > N only and
-                       return exit code 1 if the set is non-empty
-        -top N         show the top N most complex functions only
-        -avg           show the average complexity over all functions,
-                       not depending on whether -over or -top are set
-        -total         show the total complexity for all functions
-        -ignore REGEX  exclude files matching the given regular expression
+    -over N               show functions with complexity > N only and
+                          return exit code 1 if the set is non-empty
+    -top N                show the top N most complex functions only
+    -avg, -avg-short      show the average complexity over all functions;
+                          the short option prints the value without a label
+    -total, -total-short  show the total complexity for all functions;
+                          the short option prints the value without a label
+    -ignore REGEX         exclude files matching the given regular expression
 
 The output fields for each line are:
 <complexity> <package> <function> <file:row:column>
@@ -51,7 +54,9 @@ func main() {
 	over := flag.Int("over", 0, "show functions with complexity > N only")
 	top := flag.Int("top", -1, "show the top N most complex functions only")
 	avg := flag.Bool("avg", false, "show the average complexity")
+	avgShort := flag.Bool("avg-short", false, "show the average complexity without a label")
 	total := flag.Bool("total", false, "show the total complexity")
+	totalShort := flag.Bool("total-short", false, "show the total complexity without a label")
 	ignore := flag.String("ignore", "", "exclude files matching the given regular expression")
 
 	log.SetFlags(0)
@@ -67,11 +72,11 @@ func main() {
 	shownStats := allStats.SortAndFilter(*top, *over)
 
 	printStats(shownStats)
-	if *avg {
-		printAverage(allStats)
+	if *avg || *avgShort {
+		printAverage(allStats, *avgShort)
 	}
-	if *total {
-		printTotal(allStats)
+	if *total || *totalShort {
+		printTotal(allStats, *totalShort)
 	}
 
 	if *over > 0 && len(shownStats) > 0 {
@@ -96,12 +101,18 @@ func printStats(s gocyclo.Stats) {
 	}
 }
 
-func printAverage(s gocyclo.Stats) {
-	fmt.Printf("Average: %.3g\n", s.AverageComplexity())
+func printAverage(s gocyclo.Stats, short bool) {
+	if !short {
+		fmt.Print("Average: ")
+	}
+	fmt.Printf("%.3g\n", s.AverageComplexity())
 }
 
-func printTotal(s gocyclo.Stats) {
-	fmt.Printf("Total: %d\n", s.TotalComplexity())
+func printTotal(s gocyclo.Stats, short bool) {
+	if !short {
+		fmt.Print("Total: ")
+	}
+	fmt.Printf("%d\n", s.TotalComplexity())
 }
 
 func usage() {
