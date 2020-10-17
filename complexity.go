@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+// Package gocyclo calculates the cyclomatic complexities of functions and
+// methods in Go source code.
 package gocyclo
 
 import (
@@ -10,6 +12,7 @@ import (
 )
 
 // Complexity calculates the cyclomatic complexity of a function.
+// The 'fn' node is either a *ast.FuncDecl or a *ast.FuncLit.
 func Complexity(fn ast.Node) int {
 	v := complexityVisitor{}
 	ast.Walk(&v, fn)

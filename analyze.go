@@ -16,6 +16,11 @@ import (
 	"strings"
 )
 
+// Analyze calculates the cyclomatic complexities of the functions and methods
+// in the Go source code files in the given paths. If a path is a directory
+// all Go files under that directory are analyzed recursively.
+// Files with paths matching the 'ignore' regular expressions are skipped.
+// The 'ignore' parameter can be nil, meaning that no files are skipped.
 func Analyze(paths []string, ignore *regexp.Regexp) Stats {
 	var stats Stats
 	for _, path := range paths {
