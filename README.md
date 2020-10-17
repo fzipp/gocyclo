@@ -27,7 +27,7 @@ Examples:
     $ gocyclo -top 10 src/
     $ gocyclo -over 25 docker
     $ gocyclo -avg .
-    $ gocyclo -ignore "_test|Godeps" .
+    $ gocyclo -top 20 -ignore "_test|Godeps|vendor/" .
 
 The output fields for each line are:
 
