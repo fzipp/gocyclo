@@ -9,11 +9,12 @@
 //      gocyclo [<flag> ...] <Go file or directory> ...
 //
 // Flags:
-//      -over N   show functions with complexity > N only and
-//                return exit code 1 if the output is non-empty
-//      -top N    show the top N most complex functions only
-//      -avg      show the average complexity
-//      -total    show the total complexity
+//      -over N        show functions with complexity > N only and
+//                     return exit code 1 if the output is non-empty
+//      -top N         show the top N most complex functions only
+//      -avg           show the average complexity
+//      -total         show the total complexity
+//      -ignore REGEX  exclude files matching the given regular expression
 //
 // The output fields for each line are:
 // <complexity> <package> <function> <file:row:column>
@@ -24,6 +25,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"regexp"
 
 	"github.com/fzipp/gocyclo"
 )
@@ -33,12 +35,13 @@ Usage:
         gocyclo [flags] <Go file or directory> ...
 
 Flags:
-        -over N   show functions with complexity > N only and
-                  return exit code 1 if the set is non-empty
-        -top N    show the top N most complex functions only
-        -avg      show the average complexity over all functions,
-                  not depending on whether -over or -top are set
-        -total    show the total complexity for all functions
+        -over N        show functions with complexity > N only and
+                       return exit code 1 if the set is non-empty
+        -top N         show the top N most complex functions only
+        -avg           show the average complexity over all functions,
+                       not depending on whether -over or -top are set
+        -total         show the total complexity for all functions
+        -ignore REGEX  exclude files matching the given regular expression
 
 The output fields for each line are:
 <complexity> <package> <function> <file:row:column>
@@ -49,6 +52,7 @@ func main() {
 	top := flag.Int("top", -1, "show the top N most complex functions only")
 	avg := flag.Bool("avg", false, "show the average complexity")
 	total := flag.Bool("total", false, "show the total complexity")
+	ignore := flag.String("ignore", "", "exclude files matching the given regular expression")
 
 	log.SetFlags(0)
 	log.SetPrefix("gocyclo: ")
@@ -59,7 +63,7 @@ func main() {
 		usage()
 	}
 
-	allStats := gocyclo.Analyze(paths)
+	allStats := gocyclo.Analyze(paths, regex(*ignore))
 	shownStats := allStats.SortAndFilter(*top, *over)
 
 	printStats(shownStats)
@@ -73,6 +77,17 @@ func main() {
 	if *over > 0 && len(shownStats) > 0 {
 		os.Exit(1)
 	}
+}
+
+func regex(expr string) *regexp.Regexp {
+	if expr == "" {
+		return nil
+	}
+	re, err := regexp.Compile(expr)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return re
 }
 
 func printStats(s gocyclo.Stats) {
