@@ -14,7 +14,9 @@ import (
 // Complexity calculates the cyclomatic complexity of a function.
 // The 'fn' node is either a *ast.FuncDecl or a *ast.FuncLit.
 func Complexity(fn ast.Node) int {
-	v := complexityVisitor{}
+	v := complexityVisitor{
+		complexity: 1,
+	}
 	ast.Walk(&v, fn)
 	return v.complexity
 }
@@ -27,7 +29,7 @@ type complexityVisitor struct {
 // Visit implements the ast.Visitor interface.
 func (v *complexityVisitor) Visit(n ast.Node) ast.Visitor {
 	switch n := n.(type) {
-	case *ast.FuncDecl, *ast.IfStmt, *ast.ForStmt, *ast.RangeStmt:
+	case *ast.IfStmt, *ast.ForStmt, *ast.RangeStmt:
 		v.complexity++
 	case *ast.CaseClause:
 		if n.List != nil { // ignore default case
