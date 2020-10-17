@@ -7,7 +7,7 @@ The cyclomatic complexity of a function is calculated according to the
 following rules:
 
      1 is the base complexity of a function
-    +1 for each 'if', 'for', 'case', 'default', '&&' or '||'
+    +1 for each 'if', 'for', 'case', '&&' or '||'
 
 To install, run
 

@@ -24,8 +24,16 @@ type complexityVisitor struct {
 // Visit implements the ast.Visitor interface.
 func (v *complexityVisitor) Visit(n ast.Node) ast.Visitor {
 	switch n := n.(type) {
-	case *ast.FuncDecl, *ast.IfStmt, *ast.ForStmt, *ast.RangeStmt, *ast.CaseClause, *ast.CommClause:
+	case *ast.FuncDecl, *ast.IfStmt, *ast.ForStmt, *ast.RangeStmt:
 		v.complexity++
+	case *ast.CaseClause:
+		if n.List != nil { // ignore default case
+			v.complexity++
+		}
+	case *ast.CommClause:
+		if n.Comm != nil { // ignore default case
+			v.complexity++
+		}
 	case *ast.BinaryExpr:
 		if n.Op == token.LAND || n.Op == token.LOR {
 			v.complexity++
