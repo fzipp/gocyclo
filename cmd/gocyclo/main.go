@@ -60,13 +60,12 @@ func main() {
 	}
 
 	allStats := gocyclo.Analyze(paths)
-	shownStats := gocyclo.SortAndFilterStats(allStats, *top, *over)
-	printStats(shownStats)
+	shownStats := allStats.SortAndFilter(*top, *over)
 
+	printStats(shownStats)
 	if *avg {
 		printAverage(allStats)
 	}
-
 	if *total {
 		printTotal(allStats)
 	}
@@ -74,6 +73,20 @@ func main() {
 	if *over > 0 && len(shownStats) > 0 {
 		os.Exit(1)
 	}
+}
+
+func printStats(s gocyclo.Stats) {
+	for _, stat := range s {
+		fmt.Println(stat)
+	}
+}
+
+func printAverage(s gocyclo.Stats) {
+	fmt.Printf("Average: %.3g\n", s.AverageComplexity())
+}
+
+func printTotal(s gocyclo.Stats) {
+	fmt.Printf("Total: %d\n", s.TotalComplexity())
 }
 
 func usage() {

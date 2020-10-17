@@ -23,9 +23,21 @@ func (s Stat) String() string {
 
 type Stats []Stat
 
-func SortAndFilterStats(stats Stats, top, over int) Stats {
-	result := make(Stats, len(stats))
-	copy(result, stats)
+func (s Stats) AverageComplexity() float64 {
+	return float64(s.TotalComplexity()) / float64(len(s))
+}
+
+func (s Stats) TotalComplexity() uint64 {
+	total := uint64(0)
+	for _, stat := range s {
+		total += uint64(stat.Complexity)
+	}
+	return total
+}
+
+func (s Stats) SortAndFilter(top, over int) Stats {
+	result := make(Stats, len(s))
+	copy(result, s)
 	sort.Sort(byComplexityDesc(result))
 	for i, stat := range result {
 		if i == top {
