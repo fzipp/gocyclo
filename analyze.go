@@ -61,17 +61,23 @@ func analyzeFile(path string, ignore *regexp.Regexp, stats Stats) Stats {
 	if err != nil {
 		log.Fatal(err)
 	}
-	analyzer := &fileAnalyzer{
-		file:    f,
-		fileSet: fset,
-		stats:   stats,
-	}
-	analyzer.analyze()
-	return analyzer.stats
+	return AnalyzeASTFile(f, fset, stats)
 }
 
 func isIgnored(path string, ignore *regexp.Regexp) bool {
 	return ignore != nil && ignore.MatchString(path)
+}
+
+// AnalyzeASTFile calculates the cyclomatic complexities of the functions
+// and methods in the abstract syntax tree (AST) of a parsed Go file and
+// appends the results to the given Stats slice.
+func AnalyzeASTFile(f *ast.File, fs *token.FileSet, s Stats) Stats {
+	analyzer := &fileAnalyzer{
+		file:    f,
+		fileSet: fs,
+		stats:   s,
+	}
+	return analyzer.analyze()
 }
 
 type fileAnalyzer struct {
@@ -80,10 +86,11 @@ type fileAnalyzer struct {
 	stats   Stats
 }
 
-func (a *fileAnalyzer) analyze() {
+func (a *fileAnalyzer) analyze() Stats {
 	for _, decl := range a.file.Decls {
 		a.analyzeDecl(decl)
 	}
+	return a.stats
 }
 
 func (a *fileAnalyzer) analyzeDecl(d ast.Decl) {
