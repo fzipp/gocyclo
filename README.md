@@ -1,45 +1,97 @@
+# gocyclo
+
 [![PkgGoDev](https://pkg.go.dev/badge/github.com/fzipp/gocyclo)](https://pkg.go.dev/github.com/fzipp/gocyclo)
 [![Go Report Card](https://goreportcard.com/badge/github.com/fzipp/gocyclo)](https://goreportcard.com/report/github.com/fzipp/gocyclo)
 
-Gocyclo calculates cyclomatic complexities of functions in Go source code.
+Gocyclo calculates
+[cyclomatic complexities](https://en.wikipedia.org/wiki/Cyclomatic_complexity)
+of functions in Go source code.
+
+Cyclomatic complexity is a
+[code quality metric](https://en.wikipedia.org/wiki/Software_metric)
+which can be used to identify code that needs refactoring.
+It measures the number of linearly independent paths through a function's
+source code.
 
 The cyclomatic complexity of a function is calculated according to the
 following rules:
 
-     1 is the base complexity of a function
-    +1 for each 'if', 'for', 'case', '&&' or '||'
+```
+ 1 is the base complexity of a function
++1 for each 'if', 'for', 'case', '&&' or '||'
+```
 
-To install, run
+A function with a higher cyclomatic complexity requires more test cases to
+cover all possible paths and is potentially harder to understand. The
+complexity can be reduced by applying common refactoring techniques that lead
+to smaller functions.
 
-    $ go get github.com/fzipp/gocyclo/cmd/gocyclo
+## Installation
+
+To install the `gocyclo` command, run
+
+```
+$ go get github.com/fzipp/gocyclo/cmd/gocyclo
+```
 
 and put the resulting binary in one of your PATH directories if
 `$GOPATH/bin` isn't already in your PATH.
 
+## Usage
+
+```
+Calculate cyclomatic complexities of Go functions.
 Usage:
+    gocyclo [flags] <Go file or directory> ...
 
-    $ gocyclo [<flag> ...] <Go file or directory> ...
+Flags:
+    -over N               show functions with complexity > N only and
+                          return exit code 1 if the set is non-empty
+    -top N                show the top N most complex functions only
+    -avg, -avg-short      show the average complexity over all functions;
+                          the short option prints the value without a label
+    -total, -total-short  show the total complexity for all functions;
+                          the short option prints the value without a label
+    -ignore REGEX         exclude files matching the given regular expression
 
-Examples:
+The output fields for each line are:
+<complexity> <package> <function> <file:row:column>
+```
 
-    $ gocyclo .
-    $ gocyclo main.go
-    $ gocyclo -top 10 src/
-    $ gocyclo -over 25 docker
-    $ gocyclo -avg .
-    $ gocyclo -top 20 -ignore "_test|Godeps|vendor/" .
+## Examples
+
+```
+$ gocyclo .
+$ gocyclo main.go
+$ gocyclo -top 10 src/
+$ gocyclo -over 25 docker
+$ gocyclo -avg .
+$ gocyclo -top 20 -ignore "_test|Godeps|vendor/" .
+```
 
 The output fields for each line are:
 
-    <complexity> <package> <function> <file:row:column>
+```
+<complexity> <package> <function> <file:row:column>
+```
+
+### Ignoring individual functions
 
 Individual functions can be ignored with a `gocyclo:ignore` directive:
 
-    //gocyclo:ignore
-    func f() {
-        // ...
-    }
+```
+//gocyclo:ignore
+func f1() {
+	// ...
+}
     
-    //gocyclo:ignore
-    var g = func() {
-    }
+//gocyclo:ignore
+var f2 = func() {
+	// ...
+}
+```
+
+## License
+
+This project is free and open source software licensed under the
+[BSD 3-Clause License](LICENSE).
