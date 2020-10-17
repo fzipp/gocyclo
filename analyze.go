@@ -18,7 +18,12 @@ import (
 func Analyze(paths []string) Stats {
 	var stats Stats
 	for _, path := range paths {
-		if isDir(path) {
+		info, err := os.Stat(path)
+		if err != nil {
+			log.Printf("could not get file info for path %q: %s\n", path, err)
+			continue
+		}
+		if info.IsDir() {
 			stats = analyzeDir(path, stats)
 		} else {
 			stats = analyzeFile(path, stats)
@@ -27,14 +32,9 @@ func Analyze(paths []string) Stats {
 	return stats
 }
 
-func isDir(filename string) bool {
-	fi, err := os.Stat(filename)
-	return err == nil && fi.IsDir()
-}
-
 func analyzeDir(dirname string, stats Stats) Stats {
 	filepath.Walk(dirname, func(path string, info os.FileInfo, err error) error {
-		if err == nil && !info.IsDir() && strings.HasSuffix(path, ".go") {
+		if err == nil && isGoFile(info) {
 			stats = analyzeFile(path, stats)
 		}
 		return err
@@ -42,9 +42,13 @@ func analyzeDir(dirname string, stats Stats) Stats {
 	return stats
 }
 
-func analyzeFile(fname string, stats Stats) Stats {
+func isGoFile(f os.FileInfo) bool {
+	return !f.IsDir() && strings.HasSuffix(f.Name(), ".go")
+}
+
+func analyzeFile(path string, stats Stats) Stats {
 	fset := token.NewFileSet()
-	f, err := parser.ParseFile(fset, fname, nil, parser.ParseComments)
+	f, err := parser.ParseFile(fset, path, nil, parser.ParseComments)
 	if err != nil {
 		log.Fatal(err)
 	}
