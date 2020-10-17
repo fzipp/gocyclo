@@ -36,3 +36,7 @@ Individual functions can be ignored with a `gocyclo:ignore` directive:
     func f() {
         // ...
     }
+    
+    //gocyclo:ignore
+    var g = func() {
+    }
