@@ -1,0 +1,3 @@
+package directory
+
+func a() {}
