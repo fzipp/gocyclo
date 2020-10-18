@@ -20,7 +20,7 @@ type Stat struct {
 }
 
 // String formats the cyclomatic complexity information of a function in
-// the following format: "<complexity> <package> <function> <file:row:column>"
+// the following format: "<complexity> <package> <function> <file:line:column>"
 func (s Stat) String() string {
 	return fmt.Sprintf("%d %s %s %s", s.Complexity, s.PkgName, s.FuncName, s.Pos)
 }

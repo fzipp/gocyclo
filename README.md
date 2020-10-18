@@ -55,7 +55,7 @@ Flags:
     -ignore REGEX         exclude files matching the given regular expression
 
 The output fields for each line are:
-<complexity> <package> <function> <file:row:column>
+<complexity> <package> <function> <file:line:column>
 ```
 
 ## Examples
