@@ -71,12 +71,11 @@ func TestTotalComplexity(t *testing.T) {
 	}
 }
 
-
 func TestSortAndFilter(t *testing.T) {
 	tests := []struct {
 		stats gocyclo.Stats
-		top int
-		over int
+		top   int
+		over  int
 		want  gocyclo.Stats
 	}{
 		{
