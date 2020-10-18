@@ -67,13 +67,23 @@ $ gocyclo -top 10 src/
 $ gocyclo -over 25 docker
 $ gocyclo -avg .
 $ gocyclo -top 20 -ignore "_test|Godeps|vendor/" .
+$ gocyclo -over 3 -avg gocyclo/
 ```
 
-The output fields for each line are:
+Example output:
 
 ```
-<complexity> <package> <function> <file:row:column>
+9 gocyclo (*complexityVisitor).Visit complexity.go:30:1
+8 main main cmd/gocyclo/main.go:53:1
+7 gocyclo (*fileAnalyzer).analyzeDecl analyze.go:96:1
+4 gocyclo Analyze analyze.go:24:1
+4 gocyclo parseDirectives directives.go:27:1
+4 gocyclo (Stats).SortAndFilter stats.go:52:1
+Average: 2.72
 ```
+
+Note that the average is calculated over all analyzed functions,
+not just the printed ones.
 
 ### Ignoring individual functions
 
