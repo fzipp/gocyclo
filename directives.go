@@ -32,7 +32,7 @@ func parseDirectives(doc *ast.CommentGroup) directives {
 	var ds directives
 	for _, comment := range doc.List {
 		if strings.HasPrefix(comment.Text, prefix) {
-			ds = append(ds, strings.TrimPrefix(comment.Text, prefix))
+			ds = append(ds, strings.TrimSpace(strings.TrimPrefix(comment.Text, prefix)))
 		}
 	}
 	return ds
