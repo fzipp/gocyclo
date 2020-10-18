@@ -22,6 +22,13 @@ func TestAnalyze(t *testing.T) {
 1 testdata f1 testdata/ifs.go:3:1`,
 		},
 		{
+			[]string{"testdata/loops.go"},
+			`4 testdata l4 testdata/loops.go:19:1
+3 testdata l3 testdata/loops.go:8:1
+2 testdata l2range testdata/loops.go:14:1
+2 testdata l2 testdata/loops.go:3:1`,
+		},
+		{
 			[]string{"testdata/cases.go"},
 			`3 testdata c3default testdata/cases.go:32:1
 3 testdata c3 testdata/cases.go:25:1
