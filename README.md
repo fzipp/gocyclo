@@ -1,6 +1,7 @@
 # gocyclo
 
 [![PkgGoDev](https://pkg.go.dev/badge/github.com/fzipp/gocyclo)](https://pkg.go.dev/github.com/fzipp/gocyclo)
+[![Build Status](https://travis-ci.com/fzipp/gocyclo.svg?branch=master)](https://travis-ci.com/fzipp/gocyclo)
 [![Go Report Card](https://goreportcard.com/badge/github.com/fzipp/gocyclo)](https://goreportcard.com/report/github.com/fzipp/gocyclo)
 
 Gocyclo calculates
