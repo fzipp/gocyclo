@@ -32,7 +32,7 @@ to smaller functions.
 To install the `gocyclo` command, run
 
 ```
-$ go get github.com/fzipp/gocyclo/cmd/gocyclo
+$ go install github.com/fzipp/gocyclo/cmd/gocyclo@latest
 ```
 
 and put the resulting binary in one of your PATH directories if
