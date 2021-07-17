@@ -9,6 +9,7 @@ import (
 	"go/ast"
 	"go/parser"
 	"go/token"
+	"io/fs"
 	"log"
 	"os"
 	"path/filepath"
@@ -39,8 +40,8 @@ func Analyze(paths []string, ignore *regexp.Regexp) Stats {
 }
 
 func analyzeDir(dirname string, ignore *regexp.Regexp, stats Stats) Stats {
-	filepath.Walk(dirname, func(path string, info os.FileInfo, err error) error {
-		if err == nil && isGoFile(info) {
+	filepath.WalkDir(dirname, func(path string, entry fs.DirEntry, err error) error {
+		if err == nil && isGoFile(entry) {
 			stats = analyzeFile(path, ignore, stats)
 		}
 		return err
@@ -48,8 +49,8 @@ func analyzeDir(dirname string, ignore *regexp.Regexp, stats Stats) Stats {
 	return stats
 }
 
-func isGoFile(f os.FileInfo) bool {
-	return !f.IsDir() && strings.HasSuffix(f.Name(), ".go")
+func isGoFile(entry fs.DirEntry) bool {
+	return !entry.IsDir() && strings.HasSuffix(entry.Name(), ".go")
 }
 
 func analyzeFile(path string, ignore *regexp.Regexp, stats Stats) Stats {
