@@ -23,9 +23,9 @@ func TestAnalyze(t *testing.T) {
 		},
 		{
 			[]string{"testdata/loops.go"},
-			`4 testdata l4 testdata/loops.go:19:1
+			`4 testdata l4 testdata/loops.go:20:1
 3 testdata l3 testdata/loops.go:8:1
-2 testdata l2range testdata/loops.go:14:1
+2 testdata l2range testdata/loops.go:15:1
 2 testdata l2 testdata/loops.go:3:1`,
 		},
 		{
