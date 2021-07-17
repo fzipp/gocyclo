@@ -11,6 +11,7 @@ func l3() {
 		}
 	}
 }
+
 func l2range() {
 	for range []struct{}{} {
 	}
