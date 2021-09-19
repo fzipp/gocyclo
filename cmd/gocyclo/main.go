@@ -116,6 +116,6 @@ func printTotal(s gocyclo.Stats, short bool) {
 }
 
 func usage() {
-	_, _ = fmt.Fprintf(os.Stderr, usageDoc)
+	_, _ = fmt.Fprint(os.Stderr, usageDoc)
 	os.Exit(2)
 }
