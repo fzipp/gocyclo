@@ -1,0 +1,3 @@
+package vendor
+
+func a() {}

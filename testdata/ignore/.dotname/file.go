@@ -1,0 +1,3 @@
+package dotname
+
+func a() {}

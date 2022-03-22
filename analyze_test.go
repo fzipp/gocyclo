@@ -75,6 +75,10 @@ func TestAnalyze(t *testing.T) {
 			`1 directory b testdata/directory/file2.go:3:1
 1 directory a testdata/directory/file1.go:3:1`,
 		},
+		{
+			[]string{"testdata/ignore"},
+			"",
+		},
 	}
 
 	for _, tt := range tests {
