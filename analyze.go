@@ -59,7 +59,7 @@ var skipDirs = map[string]bool{
 
 func isSkipDir(entry fs.DirEntry) bool {
 	return entry.IsDir() && (skipDirs[entry.Name()] ||
-		strings.HasPrefix(entry.Name(), ".") ||
+		(strings.HasPrefix(entry.Name(), ".") && entry.Name() != "." && entry.Name() != "..") ||
 		strings.HasPrefix(entry.Name(), "_"))
 }
 
