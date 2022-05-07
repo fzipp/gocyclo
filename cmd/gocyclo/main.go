@@ -6,17 +6,19 @@
 // methods in Go source code.
 //
 // Usage:
-//     gocyclo [<flag> ...] <Go file or directory> ...
+//
+//	gocyclo [<flag> ...] <Go file or directory> ...
 //
 // Flags:
-//     -over N               show functions with complexity > N only and
-//                           return exit code 1 if the output is non-empty
-//     -top N                show the top N most complex functions only
-//     -avg, -avg-short      show the average complexity;
-//                           the short option prints the value without a label
-//     -total, -total-short  show the total complexity;
-//                           the short option prints the value without a label
-//     -ignore REGEX         exclude files matching the given regular expression
+//
+//	-over N               show functions with complexity > N only and
+//	                      return exit code 1 if the output is non-empty
+//	-top N                show the top N most complex functions only
+//	-avg, -avg-short      show the average complexity;
+//	                      the short option prints the value without a label
+//	-total, -total-short  show the total complexity;
+//	                      the short option prints the value without a label
+//	-ignore REGEX         exclude files matching the given regular expression
 //
 // The output fields for each line are:
 // <complexity> <package> <function> <file:line:column>
