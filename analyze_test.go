@@ -30,9 +30,9 @@ func TestAnalyze(t *testing.T) {
 		},
 		{
 			[]string{"testdata/cases.go"},
-			`3 testdata c3default testdata/cases.go:32:1
+			`3 testdata c3nested testdata/cases.go:40:1
+3 testdata c3default testdata/cases.go:32:1
 3 testdata c3 testdata/cases.go:25:1
-3 testdata c3nested testdata/cases.go:40:1
 2 testdata c2multi testdata/cases.go:19:1
 2 testdata c2default testdata/cases.go:12:1
 2 testdata c2 testdata/cases.go:6:1
