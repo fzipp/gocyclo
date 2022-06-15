@@ -16,8 +16,6 @@
 //	-top N                show the top N most complex functions only
 //	-avg, -avg-short      show the average complexity;
 //	                      the short option prints the value without a label
-//	-total, -total-short  show the total complexity;
-//	                      the short option prints the value without a label
 //	-ignore REGEX         exclude files matching the given regular expression
 //
 // The output fields for each line are:
@@ -44,8 +42,6 @@ Flags:
     -top N                show the top N most complex functions only
     -avg, -avg-short      show the average complexity over all functions;
                           the short option prints the value without a label
-    -total, -total-short  show the total complexity for all functions;
-                          the short option prints the value without a label
     -ignore REGEX         exclude files matching the given regular expression
 
 The output fields for each line are:
@@ -57,8 +53,6 @@ func main() {
 	top := flag.Int("top", -1, "show the top N most complex functions only")
 	avg := flag.Bool("avg", false, "show the average complexity")
 	avgShort := flag.Bool("avg-short", false, "show the average complexity without a label")
-	total := flag.Bool("total", false, "show the total complexity")
-	totalShort := flag.Bool("total-short", false, "show the total complexity without a label")
 	ignore := flag.String("ignore", "", "exclude files matching the given regular expression")
 
 	log.SetFlags(0)
@@ -76,9 +70,6 @@ func main() {
 	printStats(shownStats)
 	if *avg || *avgShort {
 		printAverage(allStats, *avgShort)
-	}
-	if *total || *totalShort {
-		printTotal(allStats, *totalShort)
 	}
 
 	if *over > 0 && len(shownStats) > 0 {
@@ -108,13 +99,6 @@ func printAverage(s gocyclo.Stats, short bool) {
 		fmt.Print("Average: ")
 	}
 	fmt.Printf("%.3g\n", s.AverageComplexity())
-}
-
-func printTotal(s gocyclo.Stats, short bool) {
-	if !short {
-		fmt.Print("Total: ")
-	}
-	fmt.Printf("%d\n", s.TotalComplexity())
 }
 
 func usage() {
