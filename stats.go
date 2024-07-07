@@ -64,6 +64,22 @@ func (s Stats) SortAndFilter(top, over int) Stats {
 	return result
 }
 
+// Percentile return k-th percentile, s needs to be sorted in decending
+// order and k needs to be [1,99], otherwise error will be returned
+func (s Stats) Percentile(k int) (int, error) {
+	if !sort.SliceIsSorted(s, func(i, j int) bool { return s[i].Complexity > s[j].Complexity }) {
+		return -1, fmt.Errorf("stats needs to be sorted before calculating k-th percentile")
+	}
+	if k < 1 || k > 99 {
+		return -1, fmt.Errorf("k needs to be [1,99]")
+	}
+	loc := (100-k)*len(s)/100 - 1
+	if loc < 0 {
+		loc = 0
+	}
+	return s[loc].Complexity, nil
+}
+
 type byComplexityDesc Stats
 
 func (s byComplexityDesc) Len() int      { return len(s) }

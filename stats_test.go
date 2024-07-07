@@ -144,3 +144,80 @@ func TestSortAndFilter(t *testing.T) {
 		}
 	}
 }
+
+func TestPercentile(t *testing.T) {
+	tests := []struct {
+		stats   gocyclo.Stats
+		k       int
+		want    int
+		wantErr bool
+	}{
+		{
+			// unsorted stats
+			stats: gocyclo.Stats{
+				{Complexity: 2},
+				{Complexity: 4},
+				{Complexity: 3},
+				{Complexity: 1},
+			},
+			k:       -1,
+			want:    -1,
+			wantErr: true,
+		},
+		{
+			// out-of-range k
+			stats: gocyclo.Stats{
+				{Complexity: 4},
+				{Complexity: 3},
+				{Complexity: 2},
+				{Complexity: 1},
+			},
+			k:       -1,
+			want:    -1,
+			wantErr: true,
+		},
+		{
+			// out-of-range k
+			stats: gocyclo.Stats{
+				{Complexity: 4},
+				{Complexity: 3},
+				{Complexity: 2},
+				{Complexity: 1},
+			},
+			k:       100,
+			want:    -1,
+			wantErr: true,
+		},
+		{
+			stats: gocyclo.Stats{
+				{Complexity: 4},
+				{Complexity: 3},
+				{Complexity: 2},
+				{Complexity: 1},
+			},
+			k:       50,
+			want:    3,
+			wantErr: false,
+		},
+		{
+			stats: gocyclo.Stats{
+				{Complexity: 4},
+				{Complexity: 3},
+				{Complexity: 2},
+				{Complexity: 1},
+			},
+			k:       90,
+			want:    4,
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		got, err := tt.stats.Percentile(tt.k)
+		if (err != nil) != tt.wantErr {
+			t.Errorf("expect Percentile error state %t got %v", tt.wantErr, err)
+		}
+		if tt.want != got {
+			t.Errorf("expect Percentile returns %d got %d", tt.want, got)
+		}
+	}
+}
